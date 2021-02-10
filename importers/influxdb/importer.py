@@ -1,12 +1,8 @@
-from __future__ import print_function
-from datetime import datetime
-import sys, os, logging
+import sys
+import os
+import logging
 import json
-from os import listdir
-from os.path import (
-    isfile as p_isfile,
-    join as p_join
-)
+from datetime import datetime
 from influxdb import InfluxDBClient
 from argparse import ArgumentParser
 
@@ -64,7 +60,7 @@ class TSDB(object):
                 influx_body.append(dpoint)
 
         except Exception as e:
-            logging.error("ERR seriesToInfluxDB(): {}".format(e))
+            logging.error("ERR prom_query_to_influxdb(): {}".format(e))
             pass
 
         return influx_body
@@ -96,7 +92,7 @@ class TSDB(object):
                     influx_body.append(dpoint)
 
         except Exception as e:
-            logging.error("ERR seriesToInfluxDB(): {}".format(e))
+            logging.error("ERR prom_range_to_influxdb(): {}".format(e))
             pass
 
         return influx_body
@@ -122,7 +118,7 @@ class TSDB(object):
             logging.error("# ERR 1: ", e)
             pass
 
-        return {"status": "success", "totalMetricsReceived": len(series), "totalPointesWiten": len(series_influx)}
+        return {"status": "success", "totalMetricsReceived": len(series), "totalPointsSaved": len(series_influx)}
 
 
 if __name__ == '__main__':
@@ -131,13 +127,13 @@ if __name__ == '__main__':
                         help='Input file or directory')
     args = parser.parse_args()
 
-    if p_isfile(args.arg_in):
+    if os.path.isfile(args.arg_in):
         files = [args.arg_in]
     else:
         path = args.arg_in
         files = ['{}/{}'.format(path, f) \
-            for f in listdir(path) \
-                if p_isfile(p_join(path, f)) \
+            for f in os.listdir(path) \
+                if os.path.isfile(os.path.join(path, f)) \
             ]
 
     db = TSDB()
