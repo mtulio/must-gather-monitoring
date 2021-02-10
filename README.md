@@ -8,3 +8,8 @@ The analyser will process metrics collected by [must-gather(TODO)](https://githu
 ## Commands
 
 TODO: see Makefile to get started =)
+
+
+## Know issues
+
+- On the importer using remote reader for InfluxDB, Prometheus seems to be "don't know" the metrics that was not collected by them. So, I needed to restart the Prometheus container to force this read from remote.
