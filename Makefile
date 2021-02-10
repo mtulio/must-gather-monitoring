@@ -1,9 +1,10 @@
-
 VENV ?= ./.venv
+
 PODMAN ?= sudo podman
+NET_PREFIX ?= 10.200.0
 CONTAINERS ?= prometheus influxdb
 
-NET_PREFIX ?= 10.200.0
+MUST_GATHER_PATH ?= $(PWD)/data/sample-must-gather/monitoring/prometheus/
 
 setup:
 	test -d $(VENV) || python3 -m venv $(VENV)
@@ -50,11 +51,11 @@ run-compose:
 
 # run-importer
 run-importer:
-	cd builders/influxdb && \
-		test -d ./.venv || python3 -m venv ./.venv ; \
-		./.venv/bin/pip3 install -r requirements.txt; \
-		INFLUXDB_HOST=localhost $(VENV)/bin/python builder.py \
-			-i $(PWD)/data/sample-must-gather/monitoring/prometheus/
+	cd importers/influxdb && \
+		test -d $(VENV) || python3 -m venv $(VENV) ; \
+		$(VENV)/bin/pip3 install -r requirements.txt; \
+		INFLUXDB_HOST=localhost $(VENV)/bin/python importer.py \
+			-i $(MUST_GATHER_PATH)
 
 # Cleaner
 clean: clean-containers clean-pods
