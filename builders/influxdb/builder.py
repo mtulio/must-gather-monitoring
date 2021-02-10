@@ -37,8 +37,11 @@ class TSDB(object):
                               batch_size=batch_size,
                               time_precision='s')
     
-    def prom_metric_to_influxdb(self, series):
-        """ Make InfluxDB payload and write to DB """
+    def prom_query_to_influxdb(self, series):
+        """
+        Make InfluxDB payload and write to DB.
+        /api/v1/query will return a vector
+        """
         influx_body = []
         try:
             for s in series:
@@ -54,7 +57,7 @@ class TSDB(object):
 
                 for mk in s['metric']:
                     dpoint['tags'][mk] = s['metric'][mk]
-                
+
                 dpoint['time'] = datetime.fromtimestamp(s['value'][0]).isoformat('T', 'seconds')
                 dpoint['fields']['value'] = float(s['value'][1])
 
@@ -66,10 +69,48 @@ class TSDB(object):
 
         return influx_body
 
-    def parser(self, series):
+    def prom_range_to_influxdb(self, series):
+        """
+        Make InfluxDB payload and write to DB.
+        /api/v1/query_range will return a matrix
+        """
+        influx_body = []
+        try:
+            for s in series:
+                if "metric" not in s:
+                    continue
+                dpoint = {
+                    "measurement": s['metric']['__name__'],
+                    "tags": {},
+                    "fields": {}
+                }
+
+                del s['metric']['__name__']
+
+                for mk in s['metric']:
+                    dpoint['tags'][mk] = s['metric'][mk]
+
+                for v in s['values']:
+                    dpoint['time'] = datetime.fromtimestamp(v[0]).isoformat('T', 'seconds')
+                    dpoint['fields']['value'] = float(v[1])
+                    influx_body.append(dpoint)
+
+        except Exception as e:
+            logging.error("ERR seriesToInfluxDB(): {}".format(e))
+            pass
+
+        return influx_body
+
+    def parser(self, series, resultType=None):
         try:
             try:
-                series_influx = self.prom_metric_to_influxdb(series)
+                if resultType == "vector":
+                    series_influx = self.prom_query_to_influxdb(series)
+                elif resultType == "matrix":
+                    series_influx = self.prom_range_to_influxdb(series)
+                else:
+                    print(f"Unable to parse. resultType not found on payload: {resultType}")
+                    return
                 self.write_data_points(series_influx)
             except Exception as e:
                 logging.error("# ERR 2: ", e)
@@ -81,7 +122,7 @@ class TSDB(object):
             logging.error("# ERR 1: ", e)
             pass
 
-        return {"status": "success", "total": len(series)}
+        return {"status": "success", "totalMetricsReceived": len(series), "totalPointesWiten": len(series_influx)}
 
 
 if __name__ == '__main__':
@@ -106,5 +147,5 @@ if __name__ == '__main__':
         with open(metric_file, 'r') as f:
             data = json.loads(f.read())
 
-        resp = db.parser(data['data']['result'])
+        resp = db.parser(data['data']['result'], resultType=data['data']['resultType'])
         print(json.dumps(resp, indent=4))
