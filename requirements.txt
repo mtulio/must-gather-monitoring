@@ -1,0 +1,4 @@
+pyyaml
+
+# evaluating
+https://github.com/containers/podman-compose/archive/devel.tar.gz
