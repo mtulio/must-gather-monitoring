@@ -26,8 +26,8 @@ run-prometheus:
 		--ip $(NET_PREFIX).10 \
 		--add-host prometheus:$(NET_PREFIX).10 \
 		--add-host influxdb:$(NET_PREFIX).11 \
-		-v ${PWD}/data/prometheus:/prometheus:z \
-		-v ${PWD}/prometheus/etc:/etc/prometheus:z \
+		-v ./data/prometheus:/prometheus:z \
+		-v ./prometheus/etc:/etc/prometheus:z \
 		--restart always prom/prometheus:v2.24.1
 
 run-influxdb:
@@ -53,7 +53,8 @@ run-importer:
 	cd builders/influxdb && \
 		test -d ./.venv || python3 -m venv ./.venv ; \
 		./.venv/bin/pip3 install -r requirements.txt; \
-		INFLUXDB_HOST=localhost ./.venv/bin/python builder.py -i $(PWD)/data/sample-must-gather2
+		INFLUXDB_HOST=localhost $(VENV)/bin/python builder.py \
+			-i $(PWD)/data/sample-must-gather/monitoring/prometheus/
 
 # Cleaner
 clean: clean-containers clean-pods
