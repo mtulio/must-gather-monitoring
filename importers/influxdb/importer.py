@@ -110,15 +110,31 @@ class TSDB(object):
                 self.write_data_points(series_influx)
             except Exception as e:
                 logging.error("# ERR 2: ", e)
+                return {
+                    "status": "error",
+                    "errCode": "parser2",
+                    "message": e
+                }
                 raise e
 
         except KeyboardInterrupt:
-            quit()
+            return {
+                "status": "calceled"
+            }
         except Exception as e:
             logging.error("# ERR 1: ", e)
+            return {
+                "status": "error",
+                "errCode": "parser1",
+                "message": e
+            }
             pass
 
-        return {"status": "success", "totalMetricsReceived": len(series), "totalPointsSaved": len(series_influx)}
+        return {
+            "status": "success",
+            "totalMetricsReceived": len(series),
+            "totalPointsSaved": len(series_influx)
+        }
 
 
 if __name__ == '__main__':
@@ -139,7 +155,7 @@ if __name__ == '__main__':
     db = TSDB()
     db.use('prometheus')
     for metric_file in files:
-        print(f"Loading metric file: {metric_file}")
+        logging.info(f"Loading metric file: {metric_file}")
         with open(metric_file, 'r') as f:
             data = json.loads(f.read())
 
