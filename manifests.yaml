@@ -1,0 +1,192 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    # my global config
+    global:
+      scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+      evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+      # scrape_timeout is set to the global default (10s).
+
+    remote_write:
+      - url: "http://influxdb:8086/api/v1/prom/write?db=prometheus"
+
+    remote_read:
+      - url: "http://influxdb:8086/api/v1/prom/read?db=prometheus"
+
+    # A scrape configuration containing exactly one endpoint to scrape:
+    # Here it's Prometheus itself.
+    scrape_configs:
+      # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+      - job_name: 'prometheus'
+
+        # metrics_path defaults to '/metrics'
+        # scheme defaults to 'http'.
+
+        static_configs:
+        - targets: ['localhost:9090']
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+  labels:
+    app: influxdb
+spec:
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+      - name: influxdb
+        image: influxdb:1.8.0-alpine
+        ports:
+        - containerPort: 8086
+        volumeMounts:
+          - mountPath: "/var/lib/influxdb"
+            name: influx-db
+        resources:
+          limits:
+            memory: 1Gi
+            cpu: 500m
+      volumes:
+        - name: influx-db
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.18.1
+        args:
+          - --config.file=/etc/prometheus/prometheus.yml
+          - --storage.tsdb.path=/prometheus
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+          - name: prometheus-db
+            mountPath: /prometheus
+          - name: prometheus-config
+            mountPath: /etc/prometheus
+        resources:
+          limits:
+            memory: 1Gi
+            cpu: 500m
+
+      initContainers:
+      - name: wait-influxdb
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup influxdb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for influxdb; sleep 2; done"]
+      - name: ls-config
+        image: busybox:1.28
+        command: ['ls', '-la', "/etc/prometheus"]
+        volumeMounts:
+          - name: prometheus-config
+            mountPath: /etc/prometheus
+      volumes:
+        - name: prometheus-db
+          emptyDir: {}
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+            items:
+            - key: "prometheus.yml"
+              path: "prometheus.yml"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:7.0.1
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  labels:
+    run: prometheus
+spec:
+  ports:
+  - port: 9090
+    protocol: TCP
+  selector:
+    run: prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  labels:
+    run: influxdb
+spec:
+  ports:
+  - port: 8086
+    protocol: TCP
+  selector:
+    run: influxdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    run: grafana
+spec:
+  ports:
+  - port: 3000
+    protocol: TCP
+  selector:
+    run: grafana
+
+# Prometheus POD:
+# Containers: prometheus
+# init-containers(TODO): wait-influxdb, wait-upload, extract-upload, importer-influx
+# Shared volume
+# Volume structure:
+# /data/{prometheus,uploads,importer}
+
+# --- #grafana
+
+# Datasources: Prometheus, influxdb
+# Dashboards: from extractor
