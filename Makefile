@@ -76,10 +76,6 @@ run-importer:
 		INFLUXDB_HOST=localhost $(VENV)/bin/python importer.py \
 			-i $(MUST_GATHER_PATH)
 
-# prometheus
-prom-reload:
-	curl -XPOST localhost:9090/-/reload
-
 # Cleaner
 clean: clean-containers clean-pods
 clean-containers: #clean-prometheus clean-influxdb
@@ -90,3 +86,9 @@ clean-pod:
 	$(PODMAN) pod rm omg |true
 	$(PODMAN) network rm omg |true
 
+# misc
+prom-reload:
+	curl -XPOST localhost:9090/-/reload
+
+influx-dbs:
+	curl -G 'http://localhost:8086/query' --data-urlencode 'q=SHOW DATABASES'
