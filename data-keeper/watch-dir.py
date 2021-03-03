@@ -96,13 +96,12 @@ if __name__ == "__main__":
                         datefmt='%Y-%m-%d %H:%M:%S')
 
     path_pref = '/tmp/data'
-    
-    pathlib.Path(f'{path_pref}/storage').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{path_pref}/uploads').mkdir(parents=True, exist_ok=True)
-    
-    path_upload = f'{path_pref}/uploads'
     path_storage = f'{path_pref}/storage'
+    path_upload = f'{path_pref}/uploads'
     
+    pathlib.Path(path_storage).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(path_upload).mkdir(parents=True, exist_ok=True)
+
     uploader_handler = UploadHandler(path_upload, storage_dir=path_storage)
     storage_handler = StorageHandler(path_storage)
 
