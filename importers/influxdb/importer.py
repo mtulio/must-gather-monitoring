@@ -19,6 +19,8 @@ class TSDB(object):
         self.dbPort = dbPort
         self.dbc = self.init_TSDB()
 
+        self.batch_size = 10000
+
     def init_TSDB(self):
         try:
             return InfluxDBClient(host=self.dbHost,
@@ -36,7 +38,7 @@ class TSDB(object):
                               batch_size=batch_size,
                               time_precision='s')
 
-    def write_data_points(self, json_body, batch_size=10000):
+    def write_data_points(self, json_body, batch_size=self.batch_size):
         logging.info("Writing data points...")
         logging.info(len(json_body))
         logging.info(self._write_data_points(json_body, batch_size=batch_size))
@@ -57,8 +59,7 @@ class TSDB(object):
                     "fields": {}
                 }
 
-                del s['metric']['__name__']
-
+                #del s['metric']['__name__']
                 for mk in s['metric']:
                     dpoint['tags'][mk] = s['metric'][mk]
 
@@ -85,8 +86,7 @@ class TSDB(object):
                     continue
 
                 name = s['metric']['__name__']
-                del s['metric']['__name__']
-
+                #del s['metric']['__name__']
                 tags = {}
                 for mk in s['metric']:
                     tags[mk] = s['metric'][mk]
