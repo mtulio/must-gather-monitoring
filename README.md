@@ -23,3 +23,5 @@ TODO: see Makefile to get started =)
 - improve performance (use less memory) to the importer, maybe use buffers between parser and importer
 - data-keeper should extract only the metrics, avoid use extra space
 - data-keeper should remove old/processed files
+- understand how we can upload the dashboards to Grafana (importing from must-gather)
+
