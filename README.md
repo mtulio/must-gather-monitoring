@@ -17,7 +17,11 @@ TODO: see Makefile to get started =)
 
 TODO
 
-- Deploy stack
+- Deploy stack:
+
+~~~
+make run-stack
+~~~
 
 ### Proposal to omg
 

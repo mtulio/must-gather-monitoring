@@ -21,23 +21,38 @@ setup:
 # Runner
 all: pod-setup run
 
-pod-setup:
-	$(PODMAN) network create omg --subnet $(NET_PREFIX).0/24
-	$(PODMAN) pod create --name omg --network $(DEFAULT_NET)
+## Depends podman>=2.1 and dnsname plugin (https://github.com/containers/dnsname)
+pod-prometheus:
+	$(PODMAN) pod create \
+		--name prometheus \
+		--hostname prometheus \
+		-p 9090:9090
 
-pods-setup:
-	$(PODMAN) pod create --name prometheus --network $(DEFAULT_NET)
-	$(PODMAN) pod create --name influxdb --network $(DEFAULT_NET)
-	$(PODMAN) pod create --name grafana --network $(DEFAULT_NET)
-	$(PODMAN) pod create --name data-house --network $(DEFAULT_NET)
+pod-grafana:
+	$(PODMAN) pod create \
+		--name grafana \
+		--hostname grafana \
+		-p 3000:3000
+
+pod-influxdb:
+	$(PODMAN) pod create \
+		--name influxdb \
+		--hostname influxdb \
+		-p 8086:8086 \
+		-p 8888:8888
+
+
+pods-setup: pod-prometheus
+	$(PODMAN) pod create --name influxdb --network $(DEFAULT_NET) |true
+	$(PODMAN) pod create --name grafana --network $(DEFAULT_NET) |true
+	$(PODMAN) pod create --name data-house --network $(DEFAULT_NET) |true
 
 run-stack: run-prometheus run-influxdb run-influxdb-ui run-grafana
-deploy-stack: pods-setup run-stack
+deploy-stack-local: pods-setup run-stack
 
 run-prometheus:
-	$(PODMAN) run --name=prometheus -d \
-		--network $(DEFAULT_NET) --pod prometheus \
-		-p 9090:9090 \
+	$(PODMAN) run -d \
+		--pod prometheus \
 		-v ./data/prometheus:/prometheus:z \
 		-v ./prometheus/etc:/etc/prometheus:z \
 		--restart always $(IMAGE_PROMETHEUS) \
@@ -45,17 +60,16 @@ run-prometheus:
 		--config.file=/etc/prometheus/prometheus.yml
 
 run-grafana:
-	$(PODMAN) run --name=grafana -d \
-		--network $(DEFAULT_NET) --pod grafana \
-		-p 3000:3000 \
+	$(PODMAN) run -d \
+		--pod grafana \
 		-v ./data/grafana:/var/lib/grafana:z \
 		-e GF_SECURITY_ADMIN_PASSWORD=admin \
 		--restart always $(IMAGE_GRAFANA)
 
+run-influx: run-influxdb run-influxdb-uid
 run-influxdb:
-	$(PODMAN) run --name=influxdb -d \
-		--network $(DEFAULT_NET) --pod influxdb \
-		-p 8086:8086 \
+	$(PODMAN) run -d \
+		--pod influxdb \
 		-e INFLUXDB_ADMIN_ENABLED=true \
 		-e INFLUXDB_DB=prometheus \
 		-e INFLUXDB_ADMIN_USER=admin \
@@ -64,9 +78,8 @@ run-influxdb:
 		--restart always $(IMAGE_INFLUXDB)
 
 run-influxdb-ui:
-	$(PODMAN) run --name=influxdb-ui -d \
-		--network $(DEFAULT_NET) --pod influxdb \
-		-p 8888:8888 \
+	$(PODMAN) run -d \
+		--pod influxdb \
 		-v chronograf:/var/lib/chronograf \
 		--restart always $(IMAGE_INFLUXUI)
 
@@ -86,9 +99,8 @@ run-importer:
 clean: clean-containers clean-pods
 clean-all-containers: clean-grafana clean-prometheus clean-influx-ui clean-influxdb
 
-clean-pod:
-	$(PODMAN) pod rm omg |true
-	$(PODMAN) network rm omg |true
+clean-pods:
+	$(PODMAN) pod rm $($(PODMAN) pod ls --format "{{ .Id }}") | true
 
 clean-grafana:
 	$(PODMAN) rm -f grafana |true
