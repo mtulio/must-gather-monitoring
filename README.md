@@ -13,10 +13,25 @@ The analyser will process metrics collected by [must-gather(TODO)](https://githu
 
 TODO: see Makefile to get started =)
 
+## Usage
+
+TODO
+
+- Deploy stack
+
+### Proposal to omg
+
+TODO: proposal to integrate with [o-must-gather](https://github.com/kxr/o-must-gather)
+
+prefix: omg monitoring
+
+- deploy <podman|ocp> : deploy stack to podman/ocp
+- import <influxdb|grafana|all>: data to stack (Grafana and Influxdb)
+- session <list|save> : save current session (MG dir, deployments) to a cache file
+
 ## Know issues
 
 - On the importer using remote reader for InfluxDB, Prometheus seems to be "don't know" the metrics that was not collected by them. So, I needed to restart the Prometheus container to force this read from remote.
-
 
 ## TODOs
 
