@@ -8,7 +8,15 @@ import json
 from datetime import datetime
 from influxdb import InfluxDBClient
 from argparse import ArgumentParser
+from multiprocessing import Queue, queues
+import queue
+from threading import Thread
+import time
 
+
+global gtimeout
+gtimeout = 30
+qMaxSize = 1000000
 
 class TSDB(object):
     def __init__(self,
@@ -19,14 +27,22 @@ class TSDB(object):
         self.dbPort = dbPort
         self.dbc = self.init_TSDB()
 
-        self.batch_size = 10000
+        self.batch_size = qMaxSize
+        self.queue = Queue(maxsize=qMaxSize)
+        self.qThread = Thread(
+            target=self.writer
+        )
+        self.qThread.start()
+        self.qmThread = Thread(target=self.queue_monitor)
+        self.qmThread.start()
 
     def init_TSDB(self):
         try:
             return InfluxDBClient(host=self.dbHost,
                                 port=self.dbPort,
                                 ssl=False,
-                                verify_ssl=False)
+                                verify_ssl=False,
+                                timeout=gtimeout)
         except:
             return None
 
@@ -34,14 +50,45 @@ class TSDB(object):
         self.dbc.switch_database(dbname)
 
     def _write_data_points(self, json_body, batch_size=0):
+        #print("Writing...")
         return self.dbc.write_points(json_body,
                               batch_size=batch_size,
                               time_precision='s')
 
-    def write_data_points(self, json_body, batch_size=self.batch_size):
-        logging.info("Writing data points...")
-        logging.info(len(json_body))
-        logging.info(self._write_data_points(json_body, batch_size=batch_size))
+    def write_data_points(self, json_body, batch_size=0):
+        #logging.info(f"Writing data points [{len(json_body)}]...")
+        self._write_data_points(json_body, batch_size=batch_size)
+
+    def queue_get_batch(self, batch_size=1000, timeout=gtimeout):
+        """
+        Get batch objects from the queue
+        """
+        result = []
+        try:
+            result = [self.queue.get(timeout=gtimeout)]
+            while len(result) < batch_size:
+                result.append(self.queue.get(block=False, timeout=gtimeout))
+        except queue.Empty:
+            pass
+        except Exception as e:
+            logging.error(e)
+            pass
+        return result
+
+    def writer(self):
+        try:
+            while True:
+                self.write_data_points(self.queue_get_batch())
+        except KeyboardInterrupt:
+            pass
+
+    def queue_monitor(self):
+        try:
+            while True:
+                logging.info(f"Queue Size: {self.queue.qsize()} ({sys.getsizeof(self.queue)})")
+                time.sleep(30)
+        except KeyboardInterrupt:
+            pass 
 
     def prom_query_to_influxdb(self, series):
         """
@@ -66,7 +113,8 @@ class TSDB(object):
                 dpoint['time'] = datetime.fromtimestamp(s['value'][0]).isoformat('T', 'seconds')
                 dpoint['fields']['value'] = float(s['value'][1])
 
-                influx_body.append(dpoint)
+                #influx_body.append(dpoint)
+                self.write_data_points(dpoint)
 
         except Exception as e:
             logging.error("ERR prom_query_to_influxdb(): {}".format(e))
@@ -79,9 +127,9 @@ class TSDB(object):
         Make InfluxDB payload and write to DB.
         /api/v1/query_range will return a matrix
         """
-        influx_body = []
+        influx_body = [] # now is dummy
         try:
-            for s in series:
+            for s in series: # could be processed in paralllel
                 if "metric" not in s:
                     continue
 
@@ -99,7 +147,9 @@ class TSDB(object):
                     }
                     dpoint['time'] = datetime.fromtimestamp(v[0]).isoformat('T', 'seconds')
                     dpoint['fields']['value'] = float(v[1])
-                    influx_body.append(dpoint)
+
+                    #influx_body.append(dpoint)
+                    self.queue.put(dpoint)
 
         except Exception as e:
             logging.error("ERR prom_range_to_influxdb(): {}".format(e))
@@ -117,7 +167,7 @@ class TSDB(object):
                 else:
                     print(f"Unable to parse. resultType not found on payload: {resultType}")
                     return
-                self.write_data_points(series_influx)
+                #self.write_data_points(series_influx)
             except Exception as e:
                 logging.error("# ERR 2: ", e)
                 return {
@@ -169,10 +219,19 @@ if __name__ == '__main__':
 
     db = TSDB()
     db.use('prometheus')
+
     for metric_file in files:
         logging.info(f"Loading metric file: {metric_file}")
         with open(metric_file, 'r') as f:
             # TODO: very low performance, should stream the messages to the processor
             data = json.loads(f.read())
-            resp = db.parser(data['data']['result'], resultType=data['data']['resultType'])
-            print(json.dumps(resp, indent=4))
+            db.parser(data['data']['result'], resultType=data['data']['resultType'])
+            #print(json.dumps(resp, indent=4))
+            logging.info(f"Qlen: {db.queue.qsize()}")
+            time.sleep(gtimeout)
+
+    logging.info("Pausing...")
+    db.qThread.join()
+    db.qmThread.join()
+    logging.info(f"Finish...wait {gtimeout}s")
+    time.sleep(gtimeout)
