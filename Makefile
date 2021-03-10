@@ -41,10 +41,7 @@ pod-influxdb:
 		-p 8086:8086 \
 		-p 8888:8888
 
-
-pods-setup: pod-prometheus
-	$(PODMAN) pod create --name influxdb --network $(DEFAULT_NET) |true
-	$(PODMAN) pod create --name grafana --network $(DEFAULT_NET) |true
+pods-setup: pod-prometheus pod-grafana pod-influxdb
 	$(PODMAN) pod create --name data-house --network $(DEFAULT_NET) |true
 
 run-stack: run-prometheus run-influxdb run-influxdb-ui run-grafana
@@ -83,24 +80,38 @@ run-influxdb-ui:
 		-v chronograf:/var/lib/chronograf \
 		--restart always $(IMAGE_INFLUXUI)
 
+# importer
+IMPORTER_PATH ?= ./importers/influxdb
+IMPORTER_BIN ?= $(IMPORTER_PATH)/.venv/bin
+IMPORTER_PY ?= $(IMPORTER_BIN)/python
+importer-setup:
+	test -d $(IMPORTER_PATH)/.venv || python3 -m venv $(IMPORTER_PATH)/.venv
+	INFLUXDB_HOST=localhost $(IMPORTER_BIN)/pip install -r $(IMPORTER_PATH)/requirements.txt
+
+IMPORTER_DATASET ?= ./data/must-gather/monitoring/prometheus/
+run-importer:
+	$(IMPORTER_PY) $(IMPORTER_PATH)/importer.py -i $(IMPORTER_DATASET)
+
 #> Compose is not working properly
 run-compose:
 	sudo $(VENV)/bin/podman-compose -f container-compose.yaml up -d
 
 # run-importer
-run-importer:
-	cd importers/influxdb && \
-		test -d $(VENV) || python3 -m venv $(VENV) ; \
-		$(VENV)/bin/pip3 install -r requirements.txt; \
-		INFLUXDB_HOST=localhost $(VENV)/bin/python importer.py \
-			-i $(MUST_GATHER_PATH)
+# run-importer:
+# 	cd importers/influxdb && \
+# 		test -d $(VENV) || python3 -m venv $(VENV) ; \
+# 		$(VENV)/bin/pip3 install -r requirements.txt; \
+# 		INFLUXDB_HOST=localhost $(VENV)/bin/python importer.py \
+# 			-i $(MUST_GATHER_PATH)
 
 # Cleaner
 clean: clean-containers clean-pods
-clean-all-containers: clean-grafana clean-prometheus clean-influx-ui clean-influxdb
+clean-all-containers:
+	$(PODMAN) rm -f $($(PODMAN) ps |awk '{print$1}' |grep -v ^C) | true
 
 clean-pods:
-	$(PODMAN) pod rm $($(PODMAN) pod ls --format "{{ .Id }}") | true
+	#$(PODMAN) pod rm $($(PODMAN) pod ls --format "{{ .Id }}") | true
+	$(PODMAN) pod rm -f $($(PODMAN) pod ps --format="{{ .Id }}" )
 
 clean-grafana:
 	$(PODMAN) rm -f grafana |true
