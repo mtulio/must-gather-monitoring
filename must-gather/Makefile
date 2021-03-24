@@ -1,6 +1,6 @@
 
 REPO ?= git@github.com:mtulio/must-gather
-REPO_VER ?= fix/gather-monitoring
+REPO_VER ?= fix/monitoring-review0
 DEST_REPO ?= ./.build
 
 CMD_CNT ?= sudo podman
@@ -34,4 +34,6 @@ push-image:
 	cd $(DEST_REPO); \
 		$(CMD_CNT) push $(IMAGE_NAME):$(IMAGE_VERSION)
 
-#$(call clone,build-image,push-image)
+# make image IMAGE_VERSION=$(git rev-parse --short HEAD)-${RANDOM}
+.PHONY: image
+image: clone build-image push-image

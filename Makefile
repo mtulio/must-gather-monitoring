@@ -4,7 +4,8 @@ PODMAN ?= sudo podman
 NET_PREFIX ?= 10.200.0
 CONTAINERS ?= prometheus influxdb
 
-MUST_GATHER_PATH ?= $(PWD)/data/sample-must-gather/monitoring/prometheus/
+DATA_PATH ?= $(PWD)/data
+MUST_GATHER_PATH ?= $(DATA_PATH)/sample-must-gather-small/monitoring/prometheus/
 
 IMAGE_PROMETHEUS ?= prom/prometheus:v2.24.1
 IMAGE_GRAFANA ?= grafana/grafana:7.4.3
@@ -17,7 +18,14 @@ setup:
 	test -d $(VENV) || python3 -m venv $(VENV)
 	$(VENV)/bin/pip install --upgrade pip
 	$(VENV)/bin/pip install -r requirements.txt
-	
+
+setup-data-path:
+	test -d $(DATA_PATH) || mkdir $(DATA_PATH)
+	test -d $(DATA_PATH)/prometheus || mkdir $(DATA_PATH)/prometheus
+	test -d $(DATA_PATH)/grafana || mkdir $(DATA_PATH)/grafana
+	test -d $(DATA_PATH)/influxdb || mkdir $(DATA_PATH)/influxdb
+	chmod o+w -R $(DATA_PATH)
+
 # Runner
 all: pod-setup run
 
@@ -26,32 +34,37 @@ pod-prometheus:
 	$(PODMAN) pod create \
 		--name prometheus \
 		--hostname prometheus \
-		-p 9090:9090
+		-p 9090:9090 |true
 
 pod-grafana:
 	$(PODMAN) pod create \
 		--name grafana \
 		--hostname grafana \
-		-p 3000:3000
+		-p 3000:3000 |true
 
 pod-influxdb:
 	$(PODMAN) pod create \
 		--name influxdb \
 		--hostname influxdb \
 		-p 8086:8086 \
-		-p 8888:8888
+		-p 8888:8888 |true
 
-pods-setup: pod-prometheus pod-grafana pod-influxdb
+pod-prombackfill:
+	$(PODMAN) pod create \
+		--name prombackfill \
+		--hostname prombackfill |true
+
+pods-setup: pod-prometheus pod-grafana pod-influxdb pod-prombackfill
 	$(PODMAN) pod create --name data-house --network $(DEFAULT_NET) |true
 
-run-stack: run-prometheus run-influxdb run-influxdb-ui run-grafana
-deploy-stack-local: pods-setup run-stack
+run-stack: run-prometheus run-influxdb run-grafana
+deploy-stack-local: setup-data-path pods-setup run-stack
 
 run-prometheus:
 	$(PODMAN) run -d \
 		--pod prometheus \
-		-v ./data/prometheus:/prometheus:z \
-		-v ./prometheus/etc:/etc/prometheus:z \
+		-v $(DATA_PATH)/prometheus:/prometheus:Z \
+		-v ./prometheus/etc:/etc/prometheus:Z \
 		--restart always $(IMAGE_PROMETHEUS) \
 		--web.enable-lifecycle \
 		--config.file=/etc/prometheus/prometheus.yml
@@ -59,7 +72,7 @@ run-prometheus:
 run-grafana:
 	$(PODMAN) run -d \
 		--pod grafana \
-		-v ./data/grafana:/var/lib/grafana:z \
+		-v $(DATA_PATH)/grafana:/var/lib/grafana:Z \
 		-e GF_SECURITY_ADMIN_PASSWORD=admin \
 		--restart always $(IMAGE_GRAFANA)
 
@@ -71,14 +84,24 @@ run-influxdb:
 		-e INFLUXDB_DB=prometheus \
 		-e INFLUXDB_ADMIN_USER=admin \
 		-e INFLUXDB_ADMIN_PASSWORD=superp@$ \
-		-v ${PWD}/data/influxdb:/var/lib/influxdb:z \
+		-v $(DATA_PATH)/influxdb:/var/lib/influxdb:Z \
 		--restart always $(IMAGE_INFLUXDB)
 
 run-influxdb-ui:
 	$(PODMAN) run -d \
 		--pod influxdb \
-		-v chronograf:/var/lib/chronograf \
+		-v chronograf:/var/lib/chronograf:Z \
 		--restart always $(IMAGE_INFLUXUI)
+
+run-prometheus-backfill: pod-prombackfill
+	$(PODMAN) run -it --rm \
+		--pod prombackfill \
+		-v $(MUST_GATHER_PATH):/data:Z \
+		docker.pkg.github.com/mtulio/prometheus-backfill/prometheus-backfill:latest \
+		/prometheus-backfill \
+		-e json.gz \
+		-i /data/ \
+		-o "influxdb=http://influxdb:8086=prometheus=admin=Super$ecret"
 
 # importer
 IMPORTER_PATH ?= ./importers/influxdb
@@ -105,13 +128,12 @@ run-compose:
 # 			-i $(MUST_GATHER_PATH)
 
 # Cleaner
-clean: clean-containers clean-pods
-clean-all-containers:
-	$(PODMAN) rm -f $($(PODMAN) ps |awk '{print$1}' |grep -v ^C) | true
+clean: clean-pods
+clean-containers:
+	$(PODMAN) rm -f $(shell $(PODMAN) ps |awk '{print$1}' |grep -v ^C) | true
 
 clean-pods:
-	#$(PODMAN) pod rm $($(PODMAN) pod ls --format "{{ .Id }}") | true
-	$(PODMAN) pod rm -f $($(PODMAN) pod ps --format="{{ .Id }}" )
+	$(PODMAN) pod rm -f $(shell $(PODMAN) pod ps --format="{{ .Id }}" )
 
 clean-grafana:
 	$(PODMAN) rm -f grafana |true

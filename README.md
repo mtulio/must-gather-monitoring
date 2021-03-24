@@ -1,8 +1,12 @@
-# omg-metrics
+# must-gather-monitoring stack
 
-OpenShift must-gather metrics analyser.
+must-gather-monitoring will deploy locally a monitoring stack (Grafana and Prometheus/storages) backfilling the data collected by [OpenShift must-gather](https://github.com/mtulio/must-gather-monitoring/tree/master/must-gather).
 
-The analyser will process metrics collected by [must-gather(WIP)](https://github.com/openshift/must-gather/pull/214) and push it to Promtheus, then visualize it on pre-build Grafana dashboards also collected by must-gather.
+The projects used on this stack are:
+- Prometheus
+- Grafana
+- [OpenShift must-gather](https://github.com/openshift/must-gather/pull/214)
+- [Prometheus-backfill](https://github.com/mtulio/prometheus-backfill)
 
 ## Components
 
