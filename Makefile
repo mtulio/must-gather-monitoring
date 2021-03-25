@@ -69,10 +69,11 @@ run-prometheus:
 		--web.enable-lifecycle \
 		--config.file=/etc/prometheus/prometheus.yml
 
-run-grafana:
+run-grafana: pod-grafana
 	$(PODMAN) run -d \
 		--pod grafana \
 		-v $(DATA_PATH)/grafana:/var/lib/grafana:Z \
+		-v ./grafana/provisioning:/etc/grafana/provisioning:Z \
 		-e GF_SECURITY_ADMIN_PASSWORD=admin \
 		--restart always $(IMAGE_GRAFANA)
 
@@ -136,7 +137,7 @@ clean-pods:
 	$(PODMAN) pod rm -f $(shell $(PODMAN) pod ps --format="{{ .Id }}" )
 
 clean-grafana:
-	$(PODMAN) rm -f grafana |true
+	$(PODMAN) pod rm -f grafana |true
 
 clean-prometheus:
 	$(PODMAN) rm -f prometheus |true

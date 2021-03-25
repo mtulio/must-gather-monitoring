@@ -1,13 +1,19 @@
 # must-gather-monitoring stack
 
-must-gather-monitoring will deploy locally a monitoring stack (Grafana and Prometheus/storages) backfilling the data collected by [OpenShift must-gather](https://github.com/mtulio/must-gather-monitoring/tree/master/must-gather).
+must-gather-monitoring will deploy locally a monitoring stack (Grafana and Prometheus/storages) backfilling the data collected by [OpenShift must-gather monitoring](https://github.com/mtulio/must-gather-monitoring/tree/master/must-gather) to be explored 'out of the box'.
 
-The projects used on this stack are:
+The following projects are used on this stack:
 - Prometheus
+- InfluxDB (as remote storage)
 - Grafana
 - [OpenShift must-gather](https://github.com/openshift/must-gather/pull/214)
 - [Prometheus-backfill](https://github.com/mtulio/prometheus-backfill)
 
+Use cases:
+- troubleshooting the OpenShift cluster when you haven't access to monitoring stack
+- investigate specific components/metrics using custom dashboards
+
+<!--
 ## Components
 
 - data-importer: monitor custom storage path looking to extract metrics to must-gather and leave it available to be imported by a backend plugin (influxdb)
@@ -20,17 +26,40 @@ The projects used on this stack are:
 - influxdb: TSDB RW remote storage choosed to backfill metrics exported from Prometheus' on OCP though must-gather
 1) influxdb: TSDB
 2) chronograf: InfluxDB's UI explorer to InfluxDB importer - reads JSON (response from API), parse and batch import to InfluxDB
+-->
+
+## Install
+
+All you need is the podman to run the containers and a must-gather data collected from the OpenShift cluster.
 
 ## Usage
 
-> see more on Makefile to get started =)
-
-- Deploy stack on dev environment (using podman), create pods and run the containers:
+- Collect the data using [must-gather](./must-gather/README.md)
 
 ~~~
-make deploy-stack-local
+oc adm must-gather --image=docker.pkg.github.com/mtulio/must-gather-monitoring/must-gather-monitoring:latest -- gather_monitoring
 ~~~
 
+- Deploy stack on local environment using podman:
+
+~~~
+make deploy-stack-local DATA_PATH=./data-NEW
+~~~
+
+- Load the metrics collected by must-gather to stack using prometheus-backfill tool:
+
+> Point the variable `MUST_GATHER_PATH` to the directories that the metrics was exported
+
+~~~
+make run-prometheus-backfill MUST_GATHER_PATH=/path/to/must-gather.local/quay.io-image/monitoring/prometheus
+~~~
+
+- Explore the data on the stack:
+
+Grafana: http://localhost:3000
+Prometheus: http://localhost:9090
+
+<!--
 ### Proposal to omg (TODO)
 
 TODO: proposal to integrate with [o-must-gather](https://github.com/kxr/o-must-gather)
@@ -40,19 +69,29 @@ prefix: omg monitoring
 - deploy <podman|ocp> : deploy stack to podman/ocp
 - import <influxdb|grafana|all>: data to stack (Grafana and Influxdb)
 - session <list|save> : save current session (MG dir, deployments) to a cache file
+-->
 
-## Know issues
+## Keep in touch / How to contribute
 
-> TODO is not addressed yet to issues
+Use it and give a feedback opening issues or PR, it is always welcome.
 
-- On the importer using remote reader for InfluxDB, Prometheus' autocomplete seems to "don't known" the metrics that was not collected by them - does not have jobs associated to metrics
-- Sometimes, when backfilling directly to influxdb, the Prometheus does not find the metric on remote storage, restarting the Prometheus fixes the issue
-- Importer are taking too long and 'eating' memory. Some metrics has high cardinality, when extracted and tranformed to influxdb's payload, the memory increase too much. Need to refact the parser/dbwriter to decrease the time and memory consume.
+### Know issues
+
+- Build a Grafana Dashboard importer that is collected by must-gather
+- Importer are taking too long due to amount of data points from some metrics (Eg: container_memory_working_set_bytes). Some metrics has high cardinality, when extracted and tranformed to  payload to be writen to remote, the memory increase too much. Need to review the parser to decrease the time processing and memory usage.
+<!--
 - data-keeper should extract only the metrics, avoid to use extra space consumption with information non related with monitoring stack
 - data-keeper should remove old/processed files
-- create the grafana importer calling the API - the exported dashboards may need to be parsed to remove headers from API.
+-->
+- Grafana DS provisioning is not working properly
 
 ### Future ideas
+
+- support more options to backfill the metrics. The project [Prometheus-backfill](https://github.com/mtulio/prometheus-backfill) is responsible for that, so there are more information [here](https://github.com/mtulio/prometheus-backfill#roadmap--how-to-contribute)
+- create local tests
+- create the grafana importer calling the API to import the dashboards exported by must-gather. It may need to be parsed to remove headers from API.
+
+- create data tenancy exploring the current tools. E.g: Grafana (Org) and Remote storage (splited by databases) could be used as multi-tenant of the data, avoid launching too many instances and allowing to exploring in parallel different data sources (must-gathers). The Prometheus may need to be single-tenant in this ideia
 
 - Create an operator to make easy the deployment of whole stack and decrease time taking for each component, just use the solution:
 - split/parser could be decoubled from importer, so we can scale the importer in the case of high amount of metrics
