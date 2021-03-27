@@ -3,6 +3,7 @@ VENV ?= ./.venv
 PODMAN ?= sudo podman
 NET_PREFIX ?= 10.200.0
 CONTAINERS ?= prometheus influxdb
+DEFAULT_NET ?= podman
 
 DATA_PATH ?= $(PWD)/data
 MUST_GATHER_PATH ?= $(DATA_PATH)/sample-must-gather-small/monitoring/prometheus/
@@ -11,8 +12,6 @@ IMAGE_PROMETHEUS ?= prom/prometheus:v2.24.1
 IMAGE_GRAFANA ?= grafana/grafana:7.4.3
 IMAGE_INFLUXDB ?= influxdb:1.8.0-alpine
 IMAGE_INFLUXUI ?= chronograf:1.8.8-alpine
-
-DEFAULT_NET ?= podman
 
 setup:
 	test -d $(VENV) || python3 -m venv $(VENV)
@@ -74,17 +73,14 @@ run-grafana: pod-grafana
 		--pod grafana \
 		-v $(DATA_PATH)/grafana:/var/lib/grafana:Z \
 		-v ./grafana/provisioning:/etc/grafana/provisioning:Z \
-		-e GF_SECURITY_ADMIN_PASSWORD=admin \
+		--env-file $(PWD)/.env \
 		--restart always $(IMAGE_GRAFANA)
 
 run-influx: run-influxdb run-influxdb-uid
 run-influxdb:
 	$(PODMAN) run -d \
 		--pod influxdb \
-		-e INFLUXDB_ADMIN_ENABLED=true \
-		-e INFLUXDB_DB=prometheus \
-		-e INFLUXDB_ADMIN_USER=admin \
-		-e INFLUXDB_ADMIN_PASSWORD=superp@$ \
+		--env-file $(PWD)/.env \
 		-v $(DATA_PATH)/influxdb:/var/lib/influxdb:Z \
 		--restart always $(IMAGE_INFLUXDB)
 
