@@ -9,7 +9,7 @@ DATA_PATH ?= $(PWD)/data
 MUST_GATHER_PATH ?= $(DATA_PATH)/sample-must-gather-small/monitoring/prometheus/
 
 IMAGE_PROMETHEUS ?= prom/prometheus:v2.24.1
-IMAGE_GRAFANA ?= grafana/grafana:7.4.3
+IMAGE_GRAFANA ?= grafana/grafana:7.5.1
 IMAGE_INFLUXDB ?= influxdb:1.8.0-alpine
 IMAGE_INFLUXUI ?= chronograf:1.8.8-alpine
 
