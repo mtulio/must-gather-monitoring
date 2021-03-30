@@ -73,6 +73,7 @@ run-grafana: pod-grafana
 		--pod grafana \
 		-v $(DATA_PATH)/grafana:/var/lib/grafana:Z \
 		-v ./grafana/provisioning:/etc/grafana/provisioning:Z \
+		-v ./grafana/dashboards:/etc/grafana/dashboards:Z \
 		--env-file $(PWD)/.env \
 		--restart always $(IMAGE_GRAFANA)
 

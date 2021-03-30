@@ -4,6 +4,7 @@
 
 MUST_GATHER_DASHBOARD=${1}
 GRAFANA_FOLDER=${2:-'must-gather'}
+GF_DASH_PATH=$(dirname $0)/../grafana/dashboards/
 
 if [[ -z ${MUST_GATHER_DASHBOARD} ]]; then
     echo 'ARGV1 was not set to grafana dashboard source dir. Eg:'
@@ -14,5 +15,5 @@ fi
 for DASH in $(ls ${MUST_GATHER_DASHBOARD}/dashboard_*.json); do
     echo "Converting $DASH to provisioner";
     NAME=$(basename ${DASH} |sed 's/dashboard_//')
-    cat ${DASH} |jq .dashboard > "./grafana/dashboards/${GRAFANA_FOLDER}/${NAME}"
+    cat ${DASH} |jq .dashboard > "${GF_DASH_PATH}/${GRAFANA_FOLDER}/${NAME}"
 done
