@@ -1,0 +1,18 @@
+{
+    "orgId": 1,
+    "name": "CHANGE_ME",
+    "type": "CHANGE_ME",
+    "access": "proxy",
+    "url": "CHANGE_ME",
+    "password": "",
+    "user": "",
+    "database": "",
+    "basicAuth": false,
+    "basicAuthUser": "",
+    "basicAuthPassword": "",
+    "withCredentials": false,
+    "isDefault": false,
+    "jsonData": {},
+    "secureJsonFields": {},
+    "readOnly": false
+}
