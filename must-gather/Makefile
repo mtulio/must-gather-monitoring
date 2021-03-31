@@ -1,6 +1,6 @@
 
 REPO ?= git@github.com:mtulio/must-gather
-REPO_VER ?= fix/monitoring-review0
+REPO_VER ?= fix/gather-monitoring
 DEST_REPO ?= ./.build
 
 CMD_CNT ?= sudo podman
