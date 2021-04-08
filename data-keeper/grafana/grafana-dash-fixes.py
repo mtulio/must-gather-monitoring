@@ -38,7 +38,8 @@ def fix_refresh_behavior(data):
     Fix Dashboard variables refresh method from "On Dashboard Load" to
     "On Time Range Change" to automatic discover new variables
     when exploring old data.
-    PR opened to fix it: https://github.com/openshift/cluster-monitoring-operator/pull/1097
+    PR opened to fix it:
+    https://github.com/openshift/cluster-monitoring-operator/pull/1097
     """
     def_refresh = 2
     for t in data['templating']['list']:
