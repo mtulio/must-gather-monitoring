@@ -49,6 +49,19 @@ def fix_refresh_behavior(data):
     return data
 
 
+def fix_graph_tooltip(data):
+    """
+    Change Tooltip behavior to "Shared crosshair".
+    0: Default
+    1: Shared crosshair
+    2: Shared tooltip
+    """
+    def_tooltip = 1
+    logging.debug(f"Updating Tooltip behavior from {data['graphTooltip']} to value {def_tooltip}")
+    data['graphTooltip'] = def_tooltip
+    return data
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s: %(message)s',
