@@ -57,7 +57,14 @@ def fix_graph_tooltip(data):
     2: Shared tooltip
     """
     def_tooltip = 1
-    logging.debug(f"Updating Tooltip behavior from {data['graphTooltip']} to value {def_tooltip}")
+    old = 0
+    # if 'graphTooltip' not in data:
+    #     return data
+    try:
+        old = data['graphTooltip']
+    except KeyError:
+        pass
+    logging.debug(f"Updating Tooltip behavior from {old} to value {def_tooltip}")
     data['graphTooltip'] = def_tooltip
     return data
 
@@ -71,7 +78,9 @@ if __name__ == "__main__":
         data = sys.stdin.readlines()
         payload = extract_dashboard_payload(json.loads(data[0]))
         payload = fix_refresh_behavior(payload)
+        payload = fix_graph_tooltip(payload)
         print(json.dumps(payload))
     except Exception as e:
-        logging.eror(e)
+        logging.error(f"ERROR: {e}")
         sys.exit(1)
+    sys.exit(0)
