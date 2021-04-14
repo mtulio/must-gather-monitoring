@@ -1,6 +1,6 @@
 VENV ?= ./.venv
 
-PODMAN ?= sudo podman
+PODMAN ?= podman
 NET_PREFIX ?= 10.200.0
 CONTAINERS ?= prometheus influxdb
 DEFAULT_NET ?= podman
@@ -23,7 +23,8 @@ setup-data-path:
 	test -d $(DATA_PATH)/prometheus || mkdir $(DATA_PATH)/prometheus
 	test -d $(DATA_PATH)/grafana || mkdir $(DATA_PATH)/grafana
 	test -d $(DATA_PATH)/influxdb || mkdir $(DATA_PATH)/influxdb
-	chmod o+w -R $(DATA_PATH)
+	chmod o+w -R $(DATA_PATH) | true
+	test -f ./.env || cp ./.env-default .env
 
 # Runner
 all: pod-setup run
