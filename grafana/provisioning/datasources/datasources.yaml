@@ -29,3 +29,11 @@ datasources:
   basicAuthPassword: admin
   isDefault: false
   editable: true
+- name: must-gather-loki
+  orgId: 1
+  uid: must_gather_loki
+  type: loki
+  access: proxy
+  url: http://loki:3100
+  jsonData:
+    maxLines: 1000
