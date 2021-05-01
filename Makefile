@@ -26,12 +26,6 @@ pod-prombackfill:
 		--name prombackfill \
 		--hostname prombackfill |true
 
-pods-setup: pod-prometheus pod-grafana pod-influxdb pod-prombackfill pod-loki
-	$(PODMAN) pod create --name data-house --network $(DEFAULT_NET) |true
-
-run-stack: run-prometheus run-influxdb run-grafana
-deploy-stack-local: setup-data-path pods-setup run-stack
-
 run-prometheus-backfill: pod-prombackfill
 	$(PODMAN) run -it --rm \
 		--pod prombackfill \
@@ -42,21 +36,12 @@ run-prometheus-backfill: pod-prombackfill
 		-i /data/ \
 		-o "influxdb=http://influxdb:8086=prometheus=admin=Super$ecret"
 
-# importer
-IMPORTER_PATH ?= ./importers/influxdb
-IMPORTER_BIN ?= $(IMPORTER_PATH)/.venv/bin
-IMPORTER_PY ?= $(IMPORTER_BIN)/python
-importer-setup:
-	test -d $(IMPORTER_PATH)/.venv || python3 -m venv $(IMPORTER_PATH)/.venv
-	INFLUXDB_HOST=localhost $(IMPORTER_BIN)/pip install -r $(IMPORTER_PATH)/requirements.txt
-
-IMPORTER_DATASET ?= ./data/must-gather/monitoring/prometheus/
-run-importer:
-	$(IMPORTER_PY) $(IMPORTER_PATH)/importer.py -i $(IMPORTER_DATASET)
-
 #> Compose is not working properly
-run-compose:
-	sudo $(VENV)/bin/podman-compose -f container-compose.yaml up -d
+run:
+	./podman-manage up
+
+stop:
+	./podman-manage down
 
 # run-importer
 # run-importer:
@@ -68,11 +53,10 @@ run-compose:
 
 # Cleaner
 clean: clean-pods
-clean-containers:
-	$(PODMAN) rm -f $(shell $(PODMAN) ps |awk '{print$1}' |grep -v ^C) | true
-
 clean-pods:
-	$(PODMAN) pod rm -f $(shell $(PODMAN) pod ps --format="{{ .Id }}" )
+	./podman-manage clean
+#	 $(PODMAN) pod rm -f $(shell $(PODMAN) pod ps --format="{{ .Id }}" )
+
 
 # misc
 prom-reload:
