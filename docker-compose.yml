@@ -1,0 +1,82 @@
+---
+version: 3
+
+networks:
+  mgm:
+
+services:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.24.1
+    restart: always
+    env_file: 
+      - "${PWD}/.env"
+    ports:
+      - 9090:9090
+    volumes:
+      - ${WORKDIR}/prometheus:/prometheus:z
+      - ./prometheus/etc:/etc/prometheus:z
+    command:
+      - '--web.enable-lifecycle'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+  
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:7.5.1
+    restart: always
+    user: ${UID}
+    env_file: 
+      - "${PWD}/.env"
+    ports:
+      - 3000:3000
+    volumes:
+      - ${WORKDIR}/grafana:/var/lib/grafana:z
+      - ./grafana/provisioning:/etc/grafana/provisioning:z
+      - ./grafana/dashboards:/etc/grafana/dashboards:z
+
+  influxdb:
+    container_name: influxdb
+    image: influxdb:1.8.0-alpine
+    restart: always
+    env_file: 
+      - "${PWD}/.env"
+    ports:
+      - 8086:8086
+    volumes:
+      - ${WORKDIR}/influxdb:/var/lib/influxdb:z
+
+  # influxdbUI
+  chronograf:
+    container_name: chronograf
+    image: chronograf:1.8.8-alpine
+    restart: always
+    env_file: 
+      - "${PWD}/.env"
+    ports:
+      - 8888:8888
+
+  loki:
+    container_name: loki
+    image: grafana/loki:2.2.0
+    restart: always
+    env_file: 
+      - "${PWD}/.env"
+    ports:
+      - 3100:3100
+    volumes:
+      - ./loki:/config:z
+      - ${WORKDIR}/loki:/var/lib/loki:z
+    command:
+      - '--config.file=/config/loki-config.yaml'
+
+  lokitail:
+    container_name: lokitail
+    image: grafana/promtail:2.0.0
+    restart: always
+    env_file: 
+      - "${PWD}/.env"
+    volumes:
+      - ./loki:/config:z
+      - ${DATA_PATH}:/logs:z
+    command:
+      - '-config.file=/config/promtail-config.yaml'
