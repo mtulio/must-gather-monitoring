@@ -1,24 +1,48 @@
+#!/bin/bash
+
+#
+# Script to manage dependencies before run podman-compose.
+#
+
+test -x $(command -v podman-compose) || { \
+  echo "podman-compose is not installed, please install it: pip3 install podman-compose" \
+  && exit 1; \
+}
 
 test -z "${WORKDIR}" && { echo "WORKDIR env var not found. Please set the workdir" && exit 1; }
 
-echo "WORKDIR=${WORKDIR}"
-test -d "${WORKDIR}" || mkdir -p "${WORKDIR}" ; 
-for SUB in grafana prometheus influxdb loki; do
-  test -d "${WORKDIR}/${SUB}" || mkdir "${WORKDIR}/${SUB}";
-done
+function deps_dirs() {
+  echo "WORKDIR=${WORKDIR}"
+  test -d "${WORKDIR}" || mkdir -p "${WORKDIR}" ;
+  for SUB in grafana prometheus influxdb loki; do
+    test -d "${WORKDIR}/${SUB}" || mkdir "${WORKDIR}/${SUB}";
+  done
+  # Reinforce permissions (may changed by containes on runtime)
 
-# Reinforce permissions (may changed by containes on runtime)
-chmod -R o+w "${WORKDIR}/"
-sudo rm -rf ${WORKDIR}//grafana/png/
+  sudo rm -rf ${WORKDIR}/grafana/png/
+}
 
-function podman_clean() {
+function deps_perms() {
+  chmod -R o+w "${WORKDIR}/"
+}
+
+function cmd_up() {
+  deps_dirs;
+  deps_perms;
+  podman-compose up -d
+}
+
+function cmd_down() {
+  podman-compose down;
+}
+
+function cmd_clean() {
    podman pod rm -f must-gather-monitoring
-   
 }
 
 case $1 in
-  "up") podman-compose up -d ;;
-  "down") podman-compose down ;;
-  "clean") podman_clean ;;
+  "up") cmd_up ;;
+  "down") cmd_down ;;
+  "clean") cmd_clean ;;
   *) echo "Invalid option [$1]. Accept: up|down|clean" ;;
 esac
