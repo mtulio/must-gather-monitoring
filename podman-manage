@@ -9,7 +9,15 @@ test -x $(command -v podman-compose) || { \
   && exit 1; \
 }
 
-test -z "${WORKDIR}" && { echo "WORKDIR env var not found. Please set the workdir" && exit 1; }
+test -z "${WORKDIR}" && { \
+  echo "WORKDIR env var not found. Please set the workdir" \
+  && exit 1; \
+}
+
+test -f ./.env || { \
+  echo ".env file not found, creating from .env-default..." \
+  && cp ./.env-default ./.env
+}
 
 function deps_dirs() {
   echo "WORKDIR=${WORKDIR}"
