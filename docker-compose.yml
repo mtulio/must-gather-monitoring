@@ -34,20 +34,6 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:z
       - ./grafana/dashboards:/etc/grafana/dashboards:z
 
-  loki:
-    container_name: loki
-    image: grafana/loki:latest
-    restart: always
-    env_file: 
-      - "${PWD}/.env"
-    ports:
-      - 3100:3100
-    volumes:
-      - ./loki:/config:z
-      - ${WORKDIR}/loki:/var/lib/loki:z
-    command:
-      - '--config.file=/config/loki-config.yaml'
-
   influxdb:
     container_name: influxdb
     image: influxdb:1.8.0-alpine
@@ -69,16 +55,29 @@ services:
     ports:
       - 8888:8888
 
+  # loki
+  # loki:
+  #   container_name: loki
+  #   image: grafana/loki:latest
+  #   restart: always
+  #   env_file: 
+  #     - "${PWD}/.env"
+  #   ports:
+  #     - 3100:3100
+  #   volumes:
+  #     - ./loki:/config:z
+  #     - ${WORKDIR}/loki:/var/lib/loki:z
+  #   command:
+  #     - '--config.file=/config/loki-config.yaml'
 
-
-  lokitail:
-    container_name: lokitail
-    image: grafana/promtail:2.0.0
-    restart: always
-    env_file: 
-      - "${PWD}/.env"
-    volumes:
-      - ./loki:/config:z
-      - ${DATA_PATH}:/logs:z
-    command:
-      - '-config.file=/config/promtail-config.yaml'
+  # lokitail:
+  #   container_name: lokitail
+  #   image: grafana/promtail:2.0.0
+  #   restart: always
+  #   env_file:
+  #     - "${PWD}/.env"
+  #   volumes:
+  #     - ./loki:/config:z
+  #     - ${DATA_PATH}:/logs:z
+  #   command:
+  #     - '-config.file=/config/promtail-config.yaml'

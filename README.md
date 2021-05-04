@@ -43,15 +43,23 @@ oc adm must-gather --image=docker.pkg.github.com/mtulio/must-gather-monitoring/m
 - Deploy stack on local environment using podman:
 
 ~~~
-make deploy-stack-local DATA_PATH=./data-NEW
+$ export WORKDIR=/mnt/data/tmp/123456789/
+$ ./podman-manage up
 ~~~
 
 - Load the metrics collected by must-gather to stack using prometheus-backfill tool:
 
 > Point the variable `MUST_GATHER_PATH` to the directories that the metrics was exported
 
-~~~
-make run-prometheus-backfill MUST_GATHER_PATH=/path/to/must-gather.local/quay.io-image/monitoring/prometheus
+~~~bash
+export MUST_GATHER_PATH=/path/to/must-gather.local/quay.io-image/monitoring/prometheus
+podman run --it --rm --pod must-gather-monitoring \
+    -v ${MUST_GATHER_PATH}:/data:Z \
+    docker.pkg.github.com/mtulio/prometheus-backfill/prometheus-backfill:latest \
+    /prometheus-backfill \
+		-e json.gz \
+		-i /data/ \
+		-o "influxdb=http://127.0.0.1:8086=prometheus=admin=admin"
 ~~~
 
 - Explore the data on the stack:
