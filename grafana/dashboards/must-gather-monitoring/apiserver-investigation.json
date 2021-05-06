@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "iteration": 1618328415327,
+  "iteration": 1620319390796,
   "links": [],
   "panels": [
     {
@@ -200,7 +200,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:631",
-          "format": "short",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -394,7 +394,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:714",
-          "format": "short",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -610,7 +610,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:113",
-          "format": "short",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -709,7 +709,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:113",
-          "format": "short",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -808,7 +808,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:113",
-          "format": "short",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2037,16 +2037,13 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
+          "selected": true,
+          "tags": [],
           "text": [
-            "ocpnp-mr8xv-master-1",
-            "ocpnp-mr8xv-master-0",
-            "ocpnp-mr8xv-master-2"
+            "All"
           ],
           "value": [
-            "ocpnp-mr8xv-master-1",
-            "ocpnp-mr8xv-master-0",
-            "ocpnp-mr8xv-master-2"
+            "$__all"
           ]
         },
         "datasource": null,
@@ -2076,8 +2073,8 @@
     ]
   },
   "time": {
-    "from": "2021-04-08T00:10:21.745Z",
-    "to": "2021-04-08T18:03:02.558Z"
+    "from": "2021-05-05T19:41:35.273Z",
+    "to": "2021-05-05T20:11:39.203Z"
   },
   "timepicker": {},
   "timezone": "",
