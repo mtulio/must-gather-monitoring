@@ -30,7 +30,14 @@ Use cases:
 
 ## Install
 
-All you need is the podman to run the containers and a must-gather data collected from the OpenShift cluster.
+1. clone this repository: `git clone git@github.com:mtulio/must-gather-monitoring.git`
+
+2. Install the dependencies:
+dependencies:
+- [podman](https://podman.io/)
+- [podman-compose](https://github.com/containers/podman-compose) : `pip3 install podman-compose`
+
+3. Collect must-gather data from the OpenShift cluster (with monitoring support, as described on [Usage](#Usage))
 
 ## Usage
 
@@ -53,13 +60,10 @@ $ ./podman-manage up
 
 ~~~bash
 export MUST_GATHER_PATH=/path/to/must-gather.local/quay.io-image/monitoring/prometheus
-podman run --it --rm --pod must-gather-monitoring \
-    -v ${MUST_GATHER_PATH}:/data:Z \
-    docker.pkg.github.com/mtulio/prometheus-backfill/prometheus-backfill:latest \
-    /prometheus-backfill \
-		-e json.gz \
-		-i /data/ \
-		-o "influxdb=http://127.0.0.1:8086=prometheus=admin=admin"
+podman run --rm --pod must-gather-monitoring \
+  -v ${MUST_GATHER_PATH}:/data:Z \
+  -it quay.io/mtulio/prometheus-backfill \
+    /prometheus-backfill -e json.gz -i "/data/" -o "influxdb=http://127.0.0.1:8086=prometheus=admin=admin"
 ~~~
 
 - Explore the data on the stack:

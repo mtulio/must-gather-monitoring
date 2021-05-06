@@ -34,6 +34,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning:z
       - ./grafana/dashboards:/etc/grafana/dashboards:z
 
+  # Prometheus' remote storage: InfluxDB
   influxdb:
     container_name: influxdb
     image: influxdb:1.8.0-alpine
@@ -45,7 +46,7 @@ services:
     volumes:
       - ${WORKDIR}/influxdb:/var/lib/influxdb:z
 
-  # influxdbUI
+  #> InfluxDB UI (optional)
   chronograf:
     container_name: chronograf
     image: chronograf:1.8.8-alpine
@@ -55,6 +56,7 @@ services:
     ports:
       - 8888:8888
 
+  # Experimental
   # loki
   # loki:
   #   container_name: loki
