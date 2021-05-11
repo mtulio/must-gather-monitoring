@@ -63,7 +63,8 @@ export MUST_GATHER_PATH=/path/to/must-gather.local/quay.io-image/monitoring/prom
 podman run --rm --pod must-gather-monitoring \
   -v ${MUST_GATHER_PATH}:/data:Z \
   -it quay.io/mtulio/prometheus-backfill \
-    /prometheus-backfill -e json.gz -i "/data/" -o "influxdb=http://127.0.0.1:8086=prometheus=admin=admin"
+    /prometheus-backfill -e json.gz -i "/data/" \
+    -o "influxdb=http://127.0.0.1:8086=prometheus=admin=admin"
 ~~~
 
 - Explore the data on the stack:

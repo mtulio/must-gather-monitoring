@@ -79,7 +79,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v2.18.1
+        image: prom/prometheus:v2.24.1
         args:
           - --config.file=/etc/prometheus/prometheus.yml
           - --storage.tsdb.path=/prometheus
@@ -90,10 +90,10 @@ spec:
             mountPath: /prometheus
           - name: prometheus-config
             mountPath: /etc/prometheus
-        resources:
-          limits:
-            memory: 1Gi
-            cpu: 500m
+        # resources:
+        #   limits:
+        #     memory: 1Gi
+        #     cpu: 500m
 
       initContainers:
       - name: wait-influxdb
@@ -135,10 +135,10 @@ spec:
         image: grafana/grafana:7.0.1
         ports:
         - containerPort: 3000
-        resources:
-          limits:
-            memory: 512Mi
-            cpu: 100m
+        # resources:
+        #   limits:
+        #     memory: 512Mi
+        #     cpu: 100m
 ---
 apiVersion: v1
 kind: Service
