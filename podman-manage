@@ -4,6 +4,9 @@
 # Script to manage dependencies before run podman-compose.
 #
 
+# COMPOSE_FILE='docker-compose-exp.yml'
+COMPOSE_FILE='docker-compose.yml'
+
 test -x $(command -v podman-compose) || { \
   echo "podman-compose is not installed, please install it: pip3 install podman-compose" \
   && exit 1; \
@@ -37,11 +40,11 @@ function deps_perms() {
 function cmd_up() {
   deps_dirs;
   deps_perms;
-  podman-compose up -d
+  podman-compose -f ${COMPOSE_FILE} up -d
 }
 
 function cmd_down() {
-  podman-compose down;
+  podman-compose -f ${COMPOSE_FILE} down;
 }
 
 function cmd_clean() {
