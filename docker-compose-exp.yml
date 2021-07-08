@@ -1,4 +1,4 @@
----
+--- # experimental tools
 version: 3
 
 networks:
@@ -19,6 +19,8 @@ services:
     command:
       - '--web.enable-lifecycle'
       - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - influxdb
 
   grafana:
     container_name: grafana
@@ -33,6 +35,9 @@ services:
       - ${WORKDIR}/grafana:/var/lib/grafana:z
       - ./grafana/provisioning:/etc/grafana/provisioning:z
       - ./grafana/dashboards:/etc/grafana/dashboards:z
+    depends_on:
+      - influxdb
+      - prometheus
 
   # Prometheus' remote storage: InfluxDB
   influxdb:
@@ -45,3 +50,44 @@ services:
       - 8086:8086
     volumes:
       - ${WORKDIR}/influxdb:/var/lib/influxdb:z
+
+  #> InfluxDB UI (optional)
+  # chronograf:
+  #   container_name: chronograf
+  #   image: chronograf:1.8.8-alpine
+  #   restart: always
+  #   env_file:
+  #     - "${PWD}/.env"
+  #   ports:
+  #     - 8888:8888
+  #   depends_on:
+  #     - influxdb
+
+  # Experimental
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    restart: always
+    env_file: 
+      - "${PWD}/.env"
+    ports:
+      - 3100:3100
+    volumes:
+      - ./loki:/config:z
+      - ${WORKDIR}/loki:/var/lib/loki:z
+    command:
+      - '--config.file=/config/loki-config.yaml'
+    depends_on: grafana
+
+  lokitail:
+    container_name: lokitail
+    image: grafana/promtail:2.0.0
+    restart: always
+    env_file:
+      - "${PWD}/.env"
+    volumes:
+      - ./loki:/config:z
+      - "${WORKDIR}:/logs:z"
+    command:
+      - '-config.file=/config/promtail-config.yaml'
+    depends_on: loki
