@@ -15,9 +15,23 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "iteration": 1620319390796,
+  "iteration": 1620320670714,
   "links": [],
   "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 36,
+      "panels": [],
+      "title": "Main",
+      "type": "row"
+    },
     {
       "aliasColors": {},
       "bars": false,
@@ -34,7 +48,7 @@
         "h": 8,
         "w": 4,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "hiddenSeries": false,
       "id": 19,
@@ -139,7 +153,7 @@
         "h": 8,
         "w": 5,
         "x": 4,
-        "y": 0
+        "y": 1
       },
       "hiddenSeries": false,
       "id": 24,
@@ -238,7 +252,7 @@
         "h": 8,
         "w": 5,
         "x": 9,
-        "y": 0
+        "y": 1
       },
       "hiddenSeries": false,
       "id": 20,
@@ -335,7 +349,7 @@
         "h": 8,
         "w": 5,
         "x": 14,
-        "y": 0
+        "y": 1
       },
       "hiddenSeries": false,
       "id": 21,
@@ -434,7 +448,7 @@
         "h": 8,
         "w": 5,
         "x": 19,
-        "y": 0
+        "y": 1
       },
       "hiddenSeries": false,
       "id": 31,
@@ -526,7 +540,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 9
       },
       "id": 14,
       "panels": [],
@@ -549,7 +563,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 9
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 25,
@@ -648,7 +662,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 9
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 26,
@@ -747,7 +761,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 9
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 27,
@@ -846,7 +860,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 9
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 12,
@@ -935,7 +949,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 17
       },
       "id": 8,
       "title": "etcd/apiserver",
@@ -957,7 +971,7 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 17
+        "y": 18
       },
       "hiddenSeries": false,
       "id": 10,
@@ -1051,7 +1065,7 @@
         "h": 7,
         "w": 6,
         "x": 5,
-        "y": 17
+        "y": 18
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1147,7 +1161,7 @@
         "h": 7,
         "w": 6,
         "x": 11,
-        "y": 17
+        "y": 18
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1241,7 +1255,7 @@
         "h": 7,
         "w": 6,
         "x": 17,
-        "y": 17
+        "y": 18
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1335,7 +1349,7 @@
         "h": 8,
         "w": 5,
         "x": 0,
-        "y": 24
+        "y": 25
       },
       "hiddenSeries": false,
       "id": 29,
@@ -1436,7 +1450,7 @@
         "h": 8,
         "w": 6,
         "x": 5,
-        "y": 24
+        "y": 25
       },
       "hiddenSeries": false,
       "id": 28,
@@ -1535,7 +1549,7 @@
         "h": 8,
         "w": 6,
         "x": 11,
-        "y": 24
+        "y": 25
       },
       "hiddenSeries": false,
       "id": 23,
@@ -1638,7 +1652,7 @@
         "h": 8,
         "w": 6,
         "x": 17,
-        "y": 24
+        "y": 25
       },
       "hiddenSeries": false,
       "id": 30,
@@ -1740,7 +1754,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 32
+        "y": 33
       },
       "hiddenSeries": false,
       "id": 32,
@@ -1821,211 +1835,309 @@
       }
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 40
       },
       "id": 6,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
-          },
-          "fill": 0,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 32
-          },
-          "hiddenSeries": false,
-          "id": 2,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "max": true,
-            "min": true,
-            "show": true,
-            "sort": "max",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null as zero",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "7.5.1",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "increase(apiserver_watch_events_total[5m])",
-              "interval": "",
-              "legendFormat": "{{ instance }}_{{ apiserver}}_{{ group }}_{{kind}}_{{namespace}}_{{ service }}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeRegions": [],
-          "timeShift": null,
-          "title": "apiserver-watchers (instance_apiserver_group_kind_ns_svc)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": null,
-          "fieldConfig": {
-            "defaults": {},
-            "overrides": []
-          },
-          "fill": 0,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 32
-          },
-          "hiddenSeries": false,
-          "id": 4,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": false,
-            "max": true,
-            "min": true,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "7.5.1",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "sum(apiserver_registered_watchers) by (instance, apiserver, group, namespace, kind, service)",
-              "interval": "",
-              "legendFormat": "{{ instance }}_{{ apiserver }}_{{ group }}_{{ namespace }}_{{ kind }}_{{ service }}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeRegions": [],
-          "timeShift": null,
-          "title": "registered watchers (instance, apiserver, group, namespace, kind, service)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        }
-      ],
+      "panels": [],
       "title": "apiserver watchers",
       "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 41
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null as zero",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "increase(apiserver_watch_events_total[5m])",
+          "interval": "",
+          "legendFormat": "{{ instance }}_{{ apiserver}}_{{ group }}_{{kind}}_{{namespace}}_{{ service }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "apiserver-watchers (instance_apiserver_group_kind_ns_svc)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 41
+      },
+      "hiddenSeries": false,
+      "id": 4,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(apiserver_registered_watchers) by (instance, apiserver, group, namespace, kind, service)",
+          "interval": "",
+          "legendFormat": "{{ instance }}_{{ apiserver }}_{{ group }}_{{ namespace }}_{{ kind }}_{{ service }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "registered watchers (instance, apiserver, group, namespace, kind, service)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 49
+      },
+      "hiddenSeries": false,
+      "id": 34,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": false,
+        "max": true,
+        "min": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate",
+          "interval": "",
+          "legendFormat": "{{ pod }}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:124",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:125",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -2040,10 +2152,26 @@
           "selected": true,
           "tags": [],
           "text": [
-            "All"
+            "ocp4-acm-vvk4h-infra-0-llxmv",
+            "ocp4-acm-vvk4h-infra-0-mlr8t",
+            "ocp4-acm-vvk4h-infra-0-nhn2g",
+            "ocp4-acm-vvk4h-master-0",
+            "ocp4-acm-vvk4h-master-1",
+            "ocp4-acm-vvk4h-master-2",
+            "ocp4-acm-vvk4h-worker-0-7wk4f",
+            "ocp4-acm-vvk4h-worker-0-jnqxs",
+            "ocp4-acm-vvk4h-worker-0-k4hsx"
           ],
           "value": [
-            "$__all"
+            "ocp4-acm-vvk4h-infra-0-llxmv",
+            "ocp4-acm-vvk4h-infra-0-mlr8t",
+            "ocp4-acm-vvk4h-infra-0-nhn2g",
+            "ocp4-acm-vvk4h-master-0",
+            "ocp4-acm-vvk4h-master-1",
+            "ocp4-acm-vvk4h-master-2",
+            "ocp4-acm-vvk4h-worker-0-7wk4f",
+            "ocp4-acm-vvk4h-worker-0-jnqxs",
+            "ocp4-acm-vvk4h-worker-0-k4hsx"
           ]
         },
         "datasource": null,
@@ -2078,7 +2206,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "apiserver-investigation",
+  "title": "cluster-investigation",
   "uid": "SWXU59_Mz",
-  "version": 1
+  "version": 2
 }

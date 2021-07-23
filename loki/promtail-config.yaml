@@ -1,0 +1,33 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://127.0.0.1:3100/loki/api/v1/push
+
+scrape_configs:
+- job_name: must-gather
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: must-gather
+      agent: promtail
+      workspace: "${WORKSPACE}"
+      log_type: host_service_logs_masters
+      __path__: /logs/host_service_logs/masters/*log
+  - targets:
+      - localhost
+    labels:
+      job: must-gather
+      agent: promtail
+      workspace: "${WORKSPACE}"
+      log_type: namespace_pods
+      __path__: /logs/namespaces/*/pods/*/*/*/logs/*.log
+
+# TODO:
+# Create extracted metrics (and setup Prometheus to scrap): 
+# https://grafana.com/docs/loki/latest/clients/promtail/configuration/#scrape_configs
