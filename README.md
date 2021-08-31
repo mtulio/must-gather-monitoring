@@ -1,6 +1,8 @@
 # must-gather-monitoring stack
 
-must-gather-monitoring will deploy locally a monitoring stack (Grafana and Prometheus/storages) backfilling the data collected by [OpenShift must-gather monitoring](https://github.com/mtulio/must-gather-monitoring/tree/master/must-gather) to be explored 'out of the box'.
+> This is not a official OpenShift project.
+
+must-gather-monitoring will deploy locally a monitoring stack (Grafana and Prometheus/remote storage) backfilling the data collected by [OpenShift must-gather monitoring](https://github.com/mtulio/must-gather-monitoring/tree/master/must-gather) to be explored 'out of the box'.
 
 The following projects are used on this stack:
 - Prometheus
@@ -13,102 +15,86 @@ Use cases:
 - troubleshooting the OpenShift cluster when you haven't access to monitoring stack
 - investigate specific components/metrics using custom dashboards
 
-<!--
-## Components
+## Dependencies
 
-- data-importer: monitor custom storage path looking to extract metrics to must-gather and leave it available to be imported by a backend plugin (influxdb)
-1) uploads watcher : container to watch /data/uploads dir and extract metrics files from must-gather.
-2) metrics watcher: container to watch /data/metrics gzip metrics' file exported from must-gather
-3) backend importer: tsdb parser and importer
-4) grafana importer: dashboard importer
-- Prometheus: static config reading metrics from remote storage (backfilling metrics to Prometheus, is not available, ATM, so we choosed one simple available RW remote storage: influxdb)
-- Grafana: visualize metrics from Promtheus, importing dashboards available on must-gather - and also could have pre-build dashboards
-- influxdb: TSDB RW remote storage choosed to backfill metrics exported from Prometheus' on OCP though must-gather
-1) influxdb: TSDB
-2) chronograf: InfluxDB's UI explorer to InfluxDB importer - reads JSON (response from API), parse and batch import to InfluxDB
--->
-
-## Install
-
-1. clone this repository: `git clone git@github.com:mtulio/must-gather-monitoring.git`
-
-2. Install the dependencies:
-dependencies:
 - [podman](https://podman.io/)
 - [podman-compose](https://github.com/containers/podman-compose) : `pip3 install podman-compose`
-
-3. Collect must-gather data from the OpenShift cluster (with monitoring support, as described on [Usage](#Usage))
+- git
 
 ## Usage
 
-- Collect the data using [must-gather](./must-gather/README.md)
+### Collect metrics
 
-~~~
-oc adm must-gather --image=docker.pkg.github.com/mtulio/must-gather-monitoring/must-gather-monitoring:latest -- gather_monitoring
-~~~
+> **IMPORTANT** note: please make sure to use persistent storage AND not query long periods, it can generate a hige amount of data points.
 
-- Deploy stack on local environment using podman:
+> **IMPORTANT**: don't use it in production clusters if you are uncertain what data need to be collected. No warranty.
 
-> Point the variable `MUST_GATHER_PATH_LOGS` to the root of must-gather
+The collector will make API calls to query metrics from Prometheus endpoint and save it locally.
+
+To automate the process to collect in OCP environment, you can use the script that is [WIP on PR #214](https://github.com/openshift/must-gather/pull/214).
+
+Extract the script from latest image created by above PR:
+
+```bash
+podman create --name local-must-gather quay.io/mtulio/must-gather:latest-pr214
+podman cp local-must-gather:/usr/bin/gather-monitoring-data /tmp/gather-monitoring-data
+```
+
+Check if script is present on local machine:
+```bash
+/tmp/gather-monitoring-data -h
+```
+
+Remove temp container:
+```bash
+podman rm -f local-must-gather
+```
+
+Now you can explore all possibilities to collect the data from Prometheus (see `-h`).
+
+Some examples:
+
+- To collect all `up` metric and save it on directory `./metrics-up`, run:
+```bash
+/tmp/gather-monitoring-data --query "up" --dest-dir ./monitoring-metrics
+```
+
+- To collect all metrics with prefix `etcd_disk_`, from 1 hour ago and save it on directory `./metrics-etcd`, run:
+```bash
+/tmp/gather-monitoring-data -s "1 hours ago" -e "now" -o "./metrics-etcd" --query-range-prefix "etcd_disk_"
+```
+
+### Load metrics to a local Prometheus deployment
+
+1. Clone this repository: `git clone git@github.com:mtulio/must-gather-monitoring.git`
+
+2. Deploy stack (Prometheus, Grafana and InfluxDB[Prometheus remote storage]) on local environment using podman:
 
 ~~~
 $ export WORKDIR=/mnt/data/tmp/123456789/
-$ export MUST_GATHER_PATH_LOGS="/path/to/must-gather.local/quay.io-image"
 $ ./podman-manage up
 ~~~
 
-- Load the metrics collected by must-gather to stack using prometheus-backfill tool:
+3. Load the metrics [collected](#collect-metrics) to stack using [prometheus-backfill tool](https://github.com/mtulio/prometheus-backfill):
 
-> Point the variable `MUST_GATHER_PATH_METRICS` to the directories that the metrics was exported
+> Set the variable `METRICS_PATH` to the directory where metrics was saved. Ex: `METRICS_PATH="${PWD}/metrics-etcd"`
+
+> When using must-gather to collect metrics, the directory should be similar to: `METRICS_PATH=/path/to/must-gather.local/quay.io-image/monitoring/prometheus`.
 
 ~~~bash
-export MUST_GATHER_PATH_METRICS=/path/to/must-gather.local/quay.io-image/monitoring/prometheus
 podman run --rm --pod must-gather-monitoring \
-  -v ${MUST_GATHER_PATH_METRICS}:/data:Z \
+  -v ${METRICS_PATH}:/data:Z \
   -it quay.io/mtulio/prometheus-backfill \
     /prometheus-backfill -e json.gz -i "/data/" \
     -o "influxdb=http://127.0.0.1:8086=prometheus=admin=admin"
 ~~~
 
-- Explore the data on the stack:
+4. Explore the data on the stack:
 
-Grafana: http://localhost:3000
+- Grafana: http://localhost:3000
+- Prometheus: http://localhost:9090
 
-Prometheus: http://localhost:9090
-
-<!--
-### Proposal to omg (TODO)
-
-TODO: proposal to integrate with [o-must-gather](https://github.com/kxr/o-must-gather)
-
-prefix: omg monitoring
-
-- deploy <podman|ocp> : deploy stack to podman/ocp
-- import <influxdb|grafana|all>: data to stack (Grafana and Influxdb)
-- session <list|save> : save current session (MG dir, deployments) to a cache file
--->
 
 ## Keep in touch / How to contribute
 
-Use it and give a feedback opening issues or PR, it is always welcome.
-
-### Know issues
-
-- Build a Grafana Dashboard importer that is collected by must-gather
-- Importer are taking too long due to amount of data points from some metrics (Eg: container_memory_working_set_bytes). Some metrics has high cardinality, when extracted and tranformed to  payload to be writen to remote, the memory increase too much. Need to review the parser to decrease the time processing and memory usage.
-<!--
-- data-keeper should extract only the metrics, avoid to use extra space consumption with information non related with monitoring stack
-- data-keeper should remove old/processed files
--->
-- Grafana DS provisioning is not working properly
-
-### Future ideas
-
-- support more options to backfill the metrics. The project [Prometheus-backfill](https://github.com/mtulio/prometheus-backfill) is responsible for that, so there are more information [here](https://github.com/mtulio/prometheus-backfill#roadmap--how-to-contribute)
-- create local tests
-- create the grafana importer calling the API to import the dashboards exported by must-gather. It may need to be parsed to remove headers from API.
-
-- create data tenancy exploring the current tools. E.g: Grafana (Org) and Remote storage (splited by databases) could be used as multi-tenant of the data, avoid launching too many instances and allowing to exploring in parallel different data sources (must-gathers). The Prometheus may need to be single-tenant in this ideia
-
-- Create an operator to make easy the deployment of whole stack and decrease time taking for each component, just use the solution:
-- split/parser could be decoubled from importer, so we can scale the importer in the case of high amount of metrics
+Use it! and give us a feedback opening issues or PR.
