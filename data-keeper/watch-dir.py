@@ -86,7 +86,26 @@ class UploadHandler(RegexMatchingEventHandler):
         if event.src_path.endswith('.tar.gz'):
             logging.info(f"Extracting tar.gz: {event.src_path}")
             with tarfile.open(event.src_path, "r:gz") as so:
-                so.extractall(path=self.storage_dir)
+                def is_within_directory(directory, target):
+                    
+                    abs_directory = os.path.abspath(directory)
+                    abs_target = os.path.abspath(target)
+                
+                    prefix = os.path.commonprefix([abs_directory, abs_target])
+                    
+                    return prefix == abs_directory
+                
+                def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+                
+                    for member in tar.getmembers():
+                        member_path = os.path.join(path, member.name)
+                        if not is_within_directory(path, member_path):
+                            raise Exception("Attempted Path Traversal in Tar File")
+                
+                    tar.extractall(path, members, numeric_owner=numeric_owner) 
+                    
+                
+                safe_extract(so, path=self.storage_dir)
             logging.info(f"Extract done to {self.storage_dir}")
 
 
