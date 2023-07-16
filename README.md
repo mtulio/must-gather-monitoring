@@ -1,6 +1,6 @@
 # must-gather-monitoring stack
 
-> This is not a official OpenShift project.
+> This project is inactive
 
 must-gather-monitoring will deploy locally a monitoring stack (Grafana and Prometheus/remote storage) backfilling the data collected by [OpenShift must-gather monitoring](https://github.com/mtulio/must-gather-monitoring/tree/master/must-gather) to be explored 'out of the box'.
 
