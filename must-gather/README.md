@@ -2,7 +2,7 @@
 
 Collect monitoring information from the OpenShift cluster, monitoring stackm [using must-gather](https://github.com/openshift/must-gather).
 
-Currently the must-gather-monitoring is build-in [WIP on upstream](https://github.com/openshift/must-gather/pull/214), so it could be a plugin depending how complex or specific it would be.
+Currently the must-gather-monitoring was [proposed](https://github.com/openshift/must-gather/pull/214), so it could be a plugin depending how complex or specific it would be.
 
 When it is not merged, the build images with must-gather-monitoring scripts is available on [quay.io](https://quay.io/repository/rhn_support_mrbraga/must-gather?tab=tags).
 
